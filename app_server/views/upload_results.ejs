@@ -1,0 +1,261 @@
+<%- include('partials/layout') -%>
+
+  <div class="banner page-header">
+    <div class="col-lg-6">
+      <h1>RHHS XC Administration</h1>
+      <hr>
+      <div class="row">
+        <div class="col-sm-3 col-md-3 col-lg-3" style="background-color:rgb(179, 224, 255);">
+          <%- include('upload_results_menu') -%>
+        </div>
+      <div class="col-sm-9 col-md-9 col-lg-9">
+        
+      <!-- Add a course -->   
+      <div id="courseAdd" >
+        <h3>Add a Course</h3>  
+        <hr>
+        <form action="/addCourse" method="post">
+          <!-- Course Information -->
+          <label for="course">Course:</label>
+          <input type="text" class="form-control" id="course" onfocus="this.value=''"
+          name="course">
+          <label for="course">Site:</label>
+          <input type="text" class="form-control" id="site" onfocus="this.value=''"
+          name="site">
+          <br>
+          <label for="address">Address:</label>
+          <input type="text" class="form-control" id="address" onfocus="this.value=''"
+          name="address">
+          <br>
+          <label for="course">Distance:</label>
+          <select name="distance" id="distance" class="form-control">
+            <option value="5k">5k</option>
+            <option value="3m">3m</option>
+          </select>
+          <br>
+          <button type="submit" class="btn btn-primary">Add a Course</button>
+        </form>
+      </div>
+      <br>
+      <div id="uploadCSV">
+        <!-- Upload meet results -->
+        <h2>Upload Meet Results</h2>
+        <p>
+          This page is to upload race results for a specific race. To began choose the <em>.csv</em> you want to upload. The order of the columns are the following:
+          <ul>
+            <li>First Name</li>
+            <li>Last Name</li>
+            <li>1st Mile Time</li>
+            <li>2nd mile Time</li>
+            <li>Final Time</li>
+          </ul>
+        </p>
+        <form action="/upload_post" method="post">
+          <label for="course">Course:</label>
+          <select id="course" class="form-control" name="course">
+            <!-- for loop code start -->
+            <option value=""></option>
+            <% for(var i=0; i < courseList.length; i++) { %>
+              <option value="<%= courseList[i].course %>"><%= courseList[i].course %></option>
+            <% } %>
+          <!-- for loop code end -->
+          </select>
+          <br>
+          <input class="form-control" id="raceDate" type="date" onfocus="this.value=''" name="raceDate">
+          <br>
+          <input type="file" class="btn btn-primary" id="fileinput">
+          <br>
+          <br>
+          <textarea id="CSVOutput" name="CSVOutput" value="" rows="5" cols="50"></textarea>
+          <br>
+          <button type="submit" class="btn btn-primary">Upload Results</button>
+        </form>
+      </div>
+      <br>
+      <div id="athleticNetCSV">
+        <!-- Upload Athletic.net results -->
+        <h2>Athletic.net Meet Results</h2>
+        <p>
+          This page is to upload race results for a specific race from athletic.net. To began copy the results from 'athletic.net' and paste into the textarea below:
+        </p>
+        <form action="/athleticnet_post" method="post">
+          <label for="course">Course:</label>
+          <select id="course" class="form-control" name="course">
+            <!-- for loop code start -->
+            <option value=""></option>
+            <% for(var i=0; i < courseList.length; i++) { %>
+              <option value="<%= courseList[i].course %>"><%= courseList[i].course %></option>
+            <% } %>
+          <!-- for loop code end -->
+          </select>
+          <br>
+          <input class="form-control" id="raceDate" type="date" onfocus="this.value=''" name="raceDate">
+          <br>
+          <label for="gender">Gender:</label>
+          <select id="gender" class="form-control" name="gender">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+
+          </select>
+          <br>
+          <textarea id="txtInput" name="txtInput" value="" rows="5" cols="50"></textarea>
+          <br>
+          <button onclick="athleticNetUpload()" class="btn btn-primary">Parse Data</button>
+          <br>
+          <br>
+          <textarea id="CSVOutputAN" name="CSVOutputAN" value="" rows="5" cols="50"></textarea>
+          <br>
+          <button type="submit" class="btn btn-primary">Upload Results</button>
+        </form>
+      </div>
+      <br>
+      <!-- Personnel Record -->   
+      <div id="prUpdate" >
+        <h3>Update Personnel Record (PR)</h3>  
+        <hr>
+        <form action="/pr_post" method="post">
+          <!-- Course Information -->
+          <p>
+            Press the following button to update everyone's personnel records (PR).
+          </p>
+          <button type="submit" class="btn btn-primary">Update Personnel Record</button>
+        </form>
+      </div>
+      <br>
+
+
+      </div>
+    </div>
+      
+     
+  </div>
+</body>
+<script src="../../js/readFile.js"></script>
+<script>
+
+
+  //When page loads hide all
+  document.getElementById("courseAdd").style.display = "none"
+  document.getElementById("uploadCSV").style.display = "none"
+  document.getElementById("athleticNetCSV").style.display = "none"
+  document.getElementById("prUpdate").style.display = "none"
+  
+  /*
+  * Toggle Switch to hide and show
+  */
+  function showContent(id) {
+    var x = document.getElementById(id);
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+  /*
+  * CSV Data upload
+  */ 
+  //let rows = "";
+
+  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+
+
+  function athleticNetUpload() {
+    
+    matrix = csvToArrayAN();
+    document.getElementById("CSVOutputAN").innerHTML = matrix;
+
+  }
+
+  
+  function readSingleFile(evt) {
+    
+    var contents;
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0]; 
+    //console.log(evt.target.files[0]);
+
+   
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+	      contents = e.target.result; // // the CSV content as string
+        rows = csvToArray(contents); //Calling function to parse
+        console.log(rows);
+        document.getElementById("CSVOutput").value = rows;
+      }
+      r.readAsText(f);
+    } else { 
+      alert("Failed to load file");
+    }
+
+    
+
+  } 
+
+
+  
+  /*
+  function csvToArray(str, delimiter = ",") {
+    // slice from start of text to the first \n index
+    // use split to create an array from string by delimiter
+    const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+
+    // slice from \n index + 1 to the end of the text
+    // use split to create an array of each csv value row
+    rows = str.slice(str.indexOf("\n") + 1).split("\n");
+    //console.log(rows);
+    document.getElementById("CSVOutput").value = rows;
+  }
+
+  //Athletic.net Data
+  let rows = "";
+  let data = []; //1d array
+  let matrix = []; //2d array
+
+  function csvToArrayAN(delimiter = " ") {
+  
+  //Takes the copied text and saves it to a string
+  //Then removes all \n from the text
+  str = document.getElementById("txtInput").value;
+  str = str.replace(/(\r\n|\n|\r)/gm,"");
+  
+  // slice from start of text to the first \n index
+  // use split to create an array from string by delimiter
+  //const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+  
+  // slice from \n index + 1 to the end of the text
+  // use split to create an array of each csv value row
+  data = str.slice(str.indexOf("\t") + 1).split("\t");
+ 
+  //Make a 2d array from a 1d array
+  while(data.length > 0) {
+    matrix.push(data.splice(0,5));
+  }
+
+  //Clear out the place number at the end of the School
+  for(let i = 0; i < matrix.length; i++) {
+    
+    for(let j = 4; j < matrix[i].length; j++) {
+  
+      let temp = matrix[i][j];
+      let nbr = temp.lastIndexOf(".")
+      if (i < 9) {
+        matrix[i][j] = temp.slice(0,nbr-1);
+      } else if (i < matrix.length -1) {
+        matrix[i][j] = temp.slice(0,nbr-2);
+      }
+      console.log(matrix[i][j]);
+   }
+}
+
+  //console.log(rows);
+  //document.getElementById("CSVOutput").value = rows;
+  document.getElementById("CSVOutput").innerHTML = matrix;
+
+}
+*/
+
+</script>
+
+<%- include('partials/footer') -%>

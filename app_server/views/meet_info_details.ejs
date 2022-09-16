@@ -1,0 +1,53 @@
+<%- include('partials/layout') -%>
+
+  <div class="banner page-header">
+    <div class="col-lg-6">
+      <h1>2022 Meet Information Details</h1>
+      <hr>
+      <h2>Course: <%= result.course %></h2>
+        <p>Date: <%= result.race_date.toDateString() %></p>
+        <p>Address: <%= result.address %></td></p>
+        <p>Bus Depart: <%= result.bus_depart %></p>
+        <p>Bus Return: <%= result.approx_return %></p>
+      <hr>
+      <p><%= result.course_desc %></p>
+      <h2>Race Times</h2>
+          <table  id="table-id" class="table table-striped table-bordered table-hover">
+          <!-- foreach loop -->
+          <% results.forEach(function(result) { %>
+            <tr>
+              <td>Course Walk</td>
+              <td>Girls Varsity</td>
+              <td>Boys Varsity</td>
+              <td>Freshman Boys</td>
+              <td>Freshman Girls</td>
+              <td>Sophomore Boys</td>
+              <td>Sophomore Girls</td>
+              <td>Girls JV</td>
+              <td>Girls JV</td>
+            </tr>
+            <tr>
+              <td><%= result.coursewalk_time %></td>
+              <td><%= result.girls_varsity %></td>
+              <td><%= result.boys_varsity %></td>
+              <td><%= result.freshman_boys %></td>
+              <td><%= result.freshman_girls %></td>
+              <td><%= result.soph_boys %></td>
+              <td><%= result.soph_girls	%></td>
+              <td><%= result.girls_jv	%></td>
+              <td><%= result.boys_jv	%></td>
+            </tr>    
+          <% }) %> <!-- End FOR Loop -->
+          </table>
+      <hr>
+      <h2>Course </h2>
+      <p>MAP GOES HERE</p>
+
+    
+
+
+    </div>
+  </div>
+</body>
+
+<%- include('partials/footer') -%>
